@@ -1,9 +1,10 @@
 import cPickle as pickle
 import os, sys, math
 from train import NaiveBayes
-UTIL = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
-sys.path.append(UTIL)
+ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
+sys.path.append(ROOT)
 from util import *
+from featurized.terms.term_categorize import term_category
 
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
 
@@ -19,10 +20,9 @@ class NaiveDecoder(object):
         return ret
 
     def get_score(self, terms, domain):
-        ret = 0.0
+        ret = math.log(float(self.model.count[domain]) / self.model.training_sentence_count)
         for term in terms:
-            if self.model.term_count[term] == 0:
-                continue
+            term = term_category(term)
             c = self.model.domain_backoff[domain] \
                 if term not in self.model.domain_has[domain] \
                 else self.model.count[term, domain]
@@ -44,8 +44,24 @@ def test(model):
             predicted, _ = argmax(result.items())
             if predicted == tag:
                 correct += 1
+            # else:
+            #     print sentence, predicted, tag
     print float(correct) / total
+
+def serv(model):
+    decoder = NaiveDecoder(model)
+    while True:
+        query = raw_input('Input your query(must be segmented by SPACE), q to quit:\n')
+        if query == 'q':
+            return
+        ret = decoder.decode(query)
+        for domain, score in sorted(ret.items(), key = lambda x: -x[1]):
+            print domain, score
+        
 
 if __name__ == "__main__":
     model = pickle.load(open('naive.model'))
-    test(model)
+    if len(sys.argv) > 1 and sys.argv[1] == '--serv':
+        serv(model)
+    else:
+        test(model)

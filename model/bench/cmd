@@ -1,1 +1,3 @@
 python train.py --input ../../raw_data/aggregated/train.dat --terms ../../featurized/terms/terms.dat
+echo "Testing..."
+python decode.py

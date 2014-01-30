@@ -1,0 +1,4 @@
+echo -e "Inspecting test result from ($1)...\n"
+cat $1 | awk -F '\t' -f eval.awk
+sort -n -r -k 3 error_pair.dat.tmp > error_by_pair.dat
+rm -f error_pair.dat.tmp

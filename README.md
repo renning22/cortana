@@ -42,4 +42,7 @@ Each folder that contains an algorithm should have a **cmd** file. Inside the cm
 
 ### Idears worth exploration
 
-1. Categrize rare terms like numbers into class tag. EX, replace all four digit numbers into "TAG.FOUR-DIGITS".
+1. Categrize rare terms like numbers into class tag. EX, replace all four digit numbers into ...
+    "TAG.FOUR-DIGITS".
+
+2. Using the Naive-Bayes model, the accuracy on 8-fold cross validation is around 91%, significatly higher than on testing set, is this because the training data and testing data are heterogeneous?

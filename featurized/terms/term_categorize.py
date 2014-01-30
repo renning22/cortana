@@ -8,7 +8,7 @@ PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) + "/terms.dat
 RARE = 5
 LEXICON = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) + "/../../raw_data/aggregated/*.lexicon.dat"
 
-g_term_count = dict()
+g_term_count = defaultdict(int)
 g_lexicon = defaultdict(set)
 
 def load():
@@ -28,7 +28,6 @@ def load():
                 line = line.strip()
                 if line:
                     g_lexicon[tag].add(line)
-                
 
 def term_category(term):
     DIGITS = r'[0-9]+$'

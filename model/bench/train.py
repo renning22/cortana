@@ -32,7 +32,7 @@ class NaiveBayes(object):
         self.y = []
         with open(self.train_path) as train_file:
             for line in train_file:
-                line = line.strip()
+                line = line.strip().decode('utf-8')
                 if not line:
                     continue
                 terms, domain = line.split('\t')
@@ -65,8 +65,12 @@ class NaiveBayes(object):
             self.training_sentence_count += 1
             terms = terms.split(' ')
             self.domain_count[domain] += 1
+            term_set = set()
             for term in terms:
                 term = term_category(term)
+                if term in term_set:
+                    continue
+                term_set.add(term)
                 self.count[term, domain] += 1
                 self.count[domain] += 1
                 self.domain_has[domain].add(term)

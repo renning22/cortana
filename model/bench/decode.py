@@ -1,6 +1,8 @@
 import os, sys, math
 import cPickle as pickle
 import argparse
+import numpy as np
+
 from train import NaiveBayes
 ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 sys.path.append(ROOT)
@@ -13,6 +15,7 @@ TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/
 class NaiveDecoder(object):
     def __init__(self, model):
         self.model = model
+        self.backoff = np.mean(self.model.domain_backoff.values())
 
     def decode(self, sentence):
         ret = dict()
@@ -26,8 +29,10 @@ class NaiveDecoder(object):
         return max(ret.items(), key = lambda x: x[1])[0]
 
     def term_score(self, term, domain):
-        c = self.model.domain_backoff[domain] \
-            if term not in self.model.domain_has[domain] \
+        assert(type(term) == type(domain) == unicode)
+        #backoff = self.model.domain_backoff[domain]
+        backoff = self.backoff
+        c = backoff if term not in self.model.domain_has[domain] \
             else self.model.count[term, domain]
         val = math.log(float(c) / self.model.count[domain], 10.0)
         assert val < 0
@@ -57,14 +62,14 @@ def test(model, test_file_path = TEST_FILE_PATH):
     with open(test_file_path) as test_file:
         processed = 1
         for line in test_file:
-            line = line.strip()
+            line = line.strip().decode('utf-8')
             if not line:
                 continue
             total += 1
             sentence, tag = line.split('\t')
             result = decoder.decode(sentence)
             predicted, _ = argmax(result.items())
-            outfile.write("%s\t%s\t%s\n" % (sentence, predicted, tag))
+            outfile.write("%s\t%s\t%s\n" % (sentence.encode('utf-8'), predicted.encode('utf-8'), tag.encode('utf-8')))
             if predicted == tag:
                 correct += 1
             if processed % 1000 == 0:
@@ -76,10 +81,10 @@ def test(model, test_file_path = TEST_FILE_PATH):
 def serv(model):
     decoder = NaiveDecoder(model)
     while True:
-        query = raw_input('Input your query(must be segmented by SPACE), q to quit:\n')
-        if query == 'q':
+        query = raw_input('Input your query(must be segmented by SPACE), q to quit:\n').decode('utf-8')
+        if query == u'q':
             return
-        domains = raw_input('Input the domains you want to compare:\n')
+        domains = raw_input('Input the domains you want to compare:\n').decode('utf-8')
         if not domains:
             domains = decoder.model.domains
         else:

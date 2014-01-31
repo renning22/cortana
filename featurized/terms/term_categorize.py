@@ -17,30 +17,33 @@ def load():
             line = line.strip()
             if line:
                 line = line.split()
-                term = line[0]
+                term = line[0].decode('utf-8')
                 freq = int(line[1])
                 g_term_count[term] = freq
 
     for lexicon_file in glob(LEXICON):
-        tag = '__%s__' % os.path.basename(lexicon_file).split('.')[0].upper()
+        tag = u'__%s__' % os.path.basename(lexicon_file).split('.')[0].upper()
         with open(lexicon_file) as f:
             for line in f:
                 line = line.strip()
                 if line:
-                    g_lexicon[tag].add(line)
+                    g_lexicon[tag].add(line.decode('utf-8'))
 
 def term_category(term):
+    if type(term) != unicode:
+        term = term.decode('utf-8')
+
     DIGITS = r'[0-9]+$'
     CH_DIGITS = ur'[零一二三四五六七八九十千百万亿]+$'
     for tag in g_lexicon:
         if term in g_lexicon[tag]:
             return tag
     if re.match(DIGITS, term):
-        return "__DIGITS_"
+        return u"__DIGITS_"
     if re.match(CH_DIGITS, term):
-        return "__CHDIGITS__"
+        return u"__CHDIGITS__"
     if g_term_count.setdefault(term, 0) <= RARE:
-        return "__RARE__"
+        return u"__RARE__"
     return term
 
 load()

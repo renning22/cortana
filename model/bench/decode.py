@@ -35,10 +35,14 @@ class NaiveDecoder(object):
 
     def get_score(self, terms, domain):
         # a priori of domain distribution here doesn't make much sense, the value should be from live data
-        val = 1.0
+        val = 0.0
         detail = {'__priori__': val}
+        term_set = set()
         for term in terms:
             term = term_category(term)
+            if term in term_set:
+                continue
+            term_set.add(term)
             score = self.term_score(term, domain)
             detail[term] = score
             val += score
@@ -89,7 +93,7 @@ def serv(model):
             lst.append((score, domain, detail))
         lst.sort(key = lambda x: -x[0])
         for domain, score, detail in lst:
-            print score, domain, detail['__priori__']
+            print score, domain
             for term in query.split(' '):
                 cate = term_category(term)
                 sys.stdout.write('%s(%s, %d): %.4f\t' % (term, cate, g_term_count[term], detail[cate]))

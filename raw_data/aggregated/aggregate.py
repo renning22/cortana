@@ -16,8 +16,7 @@ def aggregate():
     out_dic = dict()
     
     path = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) + "/../from_archive"
-    print path
-    
+
     for root, dirs, files in os.walk(path):
         for file in files:
             m = re.match(r"chs_(\w+)\.slot\.(\w+)\.tsv",file.lower())

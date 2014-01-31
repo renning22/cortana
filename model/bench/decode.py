@@ -1,10 +1,12 @@
-import cPickle as pickle
 import os, sys, math
+import cPickle as pickle
+import argparse
 from train import NaiveBayes
 ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 sys.path.append(ROOT)
 from util import *
-from featurized.terms.term_categorize import term_category
+from util.log import _logger
+from featurized.terms.term_categorize import term_category, g_term_count
 
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
 
@@ -15,25 +17,41 @@ class NaiveDecoder(object):
     def decode(self, sentence):
         ret = dict()
         terms = sentence.split(' ')
-        for domain in self.model.domain_backoff:
-            ret[domain] = self.get_score(terms, domain)
+        for domain in self.model.domains:
+            ret[domain], _ = self.get_score(terms, domain)
         return ret
+
+    def predict(self, sentence):
+        ret = self.decode(sentence)
+        return max(ret.items(), key = lambda x: x[1])[0]
+
+    def term_score(self, term, domain):
+        c = self.model.domain_backoff[domain] \
+            if term not in self.model.domain_has[domain] \
+            else self.model.count[term, domain]
+        val = math.log(float(c) / self.model.count[domain], 10.0)
+        assert val < 0
+        return -math.pow(-val, 1.0 / 10.0)
 
     def get_score(self, terms, domain):
-        ret = math.log(float(self.model.count[domain]) / self.model.training_sentence_count)
+        # a priori of domain distribution here doesn't make much sense, the value should be from live data
+        val = 1.0
+        detail = {'__priori__': val}
         for term in terms:
             term = term_category(term)
-            c = self.model.domain_backoff[domain] \
-                if term not in self.model.domain_has[domain] \
-                else self.model.count[term, domain]
-            ret += math.log(float(c) / self.model.count[domain])
-        return ret
+            score = self.term_score(term, domain)
+            detail[term] = score
+            val += score
+        return val, detail
 
-def test(model):
+def test(model, test_file_path = TEST_FILE_PATH):
     total = 0
     correct = 0
     decoder = NaiveDecoder(model)
-    with open(TEST_FILE_PATH) as test_file:
+    outfile = open("predicted.dat", 'w')
+    _logger.info("Testing %s" % test_file_path)
+    with open(test_file_path) as test_file:
+        processed = 1
         for line in test_file:
             line = line.strip()
             if not line:
@@ -42,11 +60,14 @@ def test(model):
             sentence, tag = line.split('\t')
             result = decoder.decode(sentence)
             predicted, _ = argmax(result.items())
+            outfile.write("%s\t%s\t%s\n" % (sentence, predicted, tag))
             if predicted == tag:
                 correct += 1
-            # else:
-            #     print sentence, predicted, tag
-    print float(correct) / total
+            if processed % 1000 == 0:
+                _logger.debug("%d lines processed" % processed)
+            processed += 1
+    outfile.close()
+    _logger.info("accuracy: %f" % (float(correct) / total))
 
 def serv(model):
     decoder = NaiveDecoder(model)
@@ -54,14 +75,37 @@ def serv(model):
         query = raw_input('Input your query(must be segmented by SPACE), q to quit:\n')
         if query == 'q':
             return
-        ret = decoder.decode(query)
-        for domain, score in sorted(ret.items(), key = lambda x: -x[1]):
-            print domain, score
+        domains = raw_input('Input the domains you want to compare:\n')
+        if not domains:
+            domains = decoder.model.domains
+        else:
+            domains = domains.split(' ')
+        ret = decoder.predict(query)
+        print "\n%s\n%s\n" % (ret, '=' * 50)
         
+        lst = []
+        for domain in domains:
+            score, detail = decoder.get_score(query.split(' '), domain)
+            lst.append((score, domain, detail))
+        lst.sort(key = lambda x: -x[0])
+        for domain, score, detail in lst:
+            print score, domain, detail['__priori__']
+            for term in query.split(' '):
+                cate = term_category(term)
+                sys.stdout.write('%s(%s, %d): %.4f\t' % (term, cate, g_term_count[term], detail[cate]))
+            print '\n%s\n' % ('-' * 20)        
 
 if __name__ == "__main__":
+    cmd = argparse.ArgumentParser()
+    cmd.add_argument("--serv", help = "run as server", default=False, dest="as_server", action='store_true')
+    cmd.add_argument("--path", help = "path to the test data", default=TEST_FILE_PATH)
+    args = cmd.parse_args()
+
+    _logger.info("Loading model")
     model = pickle.load(open('naive.model'))
-    if len(sys.argv) > 1 and sys.argv[1] == '--serv':
+
+
+    if args.as_server:
         serv(model)
     else:
-        test(model)
+        test(model, args.path)

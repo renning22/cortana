@@ -44,9 +44,8 @@ class NaiveBayes(object):
             for line in term_file:
                 line = line.strip()
                 if line:
-                    term, count, _ = line.split(' ')
-                    count = int(count)
-                    self.term_count[term] = count
+                    term, count = line.split('\t')
+                    self.term_count[term] = int(count)
         _logger.info("%d terms read from file" % len(self.term_count))
 
     def reset(self):

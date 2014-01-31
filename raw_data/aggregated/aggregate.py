@@ -19,9 +19,10 @@ def aggregate():
 
     for root, dirs, files in os.walk(path):
         for file in files:
+            
             m = re.match(r"chs_(\w+)\.slot\.(\w+)\.tsv",file.lower())
             if m is not None:
-                print "%s , %s" % m.groups()
+                print "Train/Test: %s , %s" % m.groups()
                 tag = m.group(2)
                 if not out_dic.has_key(tag):
                     out_dic[tag] = open("%s.dat" % (tag),"w");
@@ -30,8 +31,21 @@ def aggregate():
                     for row in tsvin:
                         out_dic[tag].write( "%s\t%s\n" % (row[1],row[3]) )
                         
+            m = re.match(r"(\w+)\.chs\.snt",file.lower());
+            if m is not None:
+                print "Lexicon: %s" % m.groups()
+                tag = m.group(1)
+                if not out_dic.has_key(tag):
+                    out_dic[tag] = open("%s.lexicon.dat" % (tag),"w")
+                
+                with open(os.path.join(root,file),"r") as lines:
+                    for row in lines:
+                        row = row.strip()
+                        if row != '':
+                            out_dic[tag].write( "%s\n" % (row) )
+                        
     for a, b in out_dic.items():
         b.close()                    
-                
+
             
 aggregate()

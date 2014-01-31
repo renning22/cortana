@@ -1,4 +1,6 @@
 # Extract two fields(segmented sentent and class tag) from each of the eight domain
 
+# python ./aggregate.py
+
 find ../from_archive/ -iname "chs_*.slot.train.tsv" | xargs cat | cut -f 2,4  > train.dat
 find ../from_archive/ -iname "chs_*.slot.test.tsv" | xargs cat | cut -f 2,4  > test.dat

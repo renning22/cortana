@@ -10,8 +10,6 @@ from util import *
 from util.log import _logger
 from featurized.terms.term_categorize import term_category, g_term_count
 
-TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
-
 class NaiveDecoder(object):
     def __init__(self, model):
         self.model = model
@@ -53,7 +51,7 @@ class NaiveDecoder(object):
             val += score
         return val, detail
 
-def test(model, test_file_path = TEST_FILE_PATH):
+def test(model, test_file_path):
     total = 0
     correct = 0
     decoder = NaiveDecoder(model)
@@ -107,14 +105,13 @@ def serv(model):
 if __name__ == "__main__":
     cmd = argparse.ArgumentParser()
     cmd.add_argument("--serv", help = "run as server", default=False, dest="as_server", action='store_true')
-    cmd.add_argument("--path", help = "path to the test data", default=TEST_FILE_PATH)
+    cmd.add_argument("--path", help = "path to the test data", default='test.dat')
     args = cmd.parse_args()
 
     _logger.info("Loading model")
-    model = pickle.load(open('naive.model'))
-
+    model = pickle.load(open(conv.redirect('naive.model')))
 
     if args.as_server:
         serv(model)
     else:
-        test(model, args.path)
+        test(model, conv.redirect(args.path))

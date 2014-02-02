@@ -2,7 +2,7 @@
 """
 Created on Fri Jan 31 13:47:59 2014
 
-@author: niren
+@author: Ning
 """
 
 import sys,os,re

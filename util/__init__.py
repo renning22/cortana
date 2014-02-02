@@ -1,3 +1,5 @@
+__all__ = ['log','conv']
+
 def argmax(ls):
     if not ls:
         return None, 0.0

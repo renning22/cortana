@@ -7,19 +7,25 @@ For convention or convenience
 short name for path
 
 E.g.
-    train.dat = \raw_data\aggregated\train.dat
+    data|train.dat = \data\aggregated\train.dat
     naive.model = \model\naive\naive.model
-    terms.dat = \featurized\terms
-    featurized|extract.awk = \featurized\terms\extract.awk
+    terms.dat = \feat\terms
+    naive|predicted.dat = \model\naive\predicted.dat
     
 @author: Ning
 """
 
-import os
+import os,sys
 from log import _logger
 
 root = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../")
+#sys.path.append(root)
 
+
+def argmax(ls):
+    if not ls:
+        return None, 0.0
+    return max(ls, key = lambda x: x[1])
 
 def expand_list(ls):
     ret = []
@@ -56,15 +62,16 @@ def redirect(inpt):
                 
     if len(candidates) == 0:
         _logger.warning('Not found "%s"' % (inpt))
-    elif len(candidates) > 1:
-        _logger.warning('Ambiguious for "%s":' % (inpt))
-        for i in candidates:
-            _logger.warning("\t%s\n"%(i))
-    else:
-        old = inpt
-        inpt = os.path.abspath(root+"/"+candidates[0])
-        _logger.info('Redirect "%s" to "%s"' % (old,inpt))
-        return inpt
+        return ""
+    elif len(candidates) >= 1:
+        if len(candidates) > 1:
+            _logger.warning('Ambiguious for "%s":' % (inpt))
+            for i in candidates:
+                _logger.warning("\t%s\n"%(i))
+
+        ret = os.path.abspath(root+"/"+candidates[0])
+        _logger.info('Redirect "%s" to "%s"' % (inpt,ret))
+        return ret
 
 if __name__ == "__main__":
-    redirect("featurized|extract.awk")
+    redirect("naive|predicted.dat")

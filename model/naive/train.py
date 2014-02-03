@@ -15,11 +15,9 @@ import cPickle as pickle
 from collections import defaultdict
 import numpy as np
 from sklearn import cross_validation
-ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
-sys.path.append(ROOT)
 from util import conv
 from util.log import _logger
-from featurized.terms.term_categorize import term_category
+from feat.terms.term_categorize import term_category
 
 class NaiveBayes(object):
     def __init__(self, train_path, term_path, alpha = 0.5):

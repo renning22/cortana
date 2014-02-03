@@ -4,11 +4,9 @@ import argparse
 import numpy as np
 
 from train import NaiveBayes
-ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
-sys.path.append(ROOT)
 from util import *
 from util.log import _logger
-from featurized.terms.term_categorize import term_category, g_term_count
+from feat.terms.term_categorize import term_category, g_term_count
 
 class NaiveDecoder(object):
     def __init__(self, model):
@@ -66,7 +64,7 @@ def test(model, test_file_path):
             total += 1
             sentence, tag = line.split('\t')
             result = decoder.decode(sentence)
-            predicted, _ = argmax(result.items())
+            predicted, _ = conv.argmax(result.items())
             outfile.write("%s\t%s\t%s\n" % (sentence.encode('utf-8'), predicted.encode('utf-8'), tag.encode('utf-8')))
             if predicted == tag:
                 correct += 1

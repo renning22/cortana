@@ -19,7 +19,7 @@ def term_frequency():
         for row in tsvin:
             for term in row[0].split():
                 if not out_dic.has_key(term):
-                    out_dic[term] = int(0);
+                    out_dic[term] = int(0)
                 out_dic[term] = out_dic[term] + 1;
     
     with open("terms.dat",'w') as fl:

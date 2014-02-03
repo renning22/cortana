@@ -36,9 +36,11 @@ I suggest we keep *.tsv* extention for the original data and use *.dat* for the 
 
 ### Conventions
 
-Each step will fetch traning/input data from a foler in the previous step and write to its own folder. For example, if there's one method that run LDA to reduce dimention and get input from 'Bag of Words' model. It should read input from *feat/bow/train.dat* and write the transformed data to *rep/lda/train.dat*.
+1. Run setenv.py firstly when you start a new interpreter
 
-Each folder that contains an algorithm should have a **cmd** file. Inside the cmd file is the command that will run the algorithm and generate the data. We should put the description of the algorithm, assumption of the input data and other information in this cmd file as comments. In case the description get too lengthy, we add a README.md file in the *current* folder.
+2. Each step will fetch traning/input data from a foler in the previous step and write to its own folder. For example, if there's one method that run LDA to reduce dimention and get input from 'Bag of Words' model. It should read input from *feat/bow/train.dat* and write the transformed data to *rep/lda/train.dat*.
+
+3. Each folder that contains an algorithm should have a **cmd** file. Inside the cmd file is the command that will run the algorithm and generate the data. We should put the description of the algorithm, assumption of the input data and other information in this cmd file as comments. In case the description get too lengthy, we add a README.md file in the *current* folder.
 
 ### Idears worth exploration
 

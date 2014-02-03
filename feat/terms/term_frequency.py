@@ -26,4 +26,5 @@ def term_frequency():
         for a, b in out_dic.items():
             fl.write( "%s\t%s\n" % (a,b) )
             
-term_frequency()
+if __name__ == "__main__":
+    term_frequency()

@@ -47,5 +47,5 @@ def aggregate():
     for a, b in out_dic.items():
         b.close()                    
 
-            
-aggregate()
+if __name__ == "__main__":
+    aggregate()

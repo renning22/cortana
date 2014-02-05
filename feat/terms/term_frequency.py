@@ -7,12 +7,13 @@ Created on Fri Jan 31 13:47:59 2014
 
 import sys,os,re
 import csv
+from util import *
 
 def term_frequency():
     
     out_dic = dict()
     
-    path = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) + "/../../raw_data/aggregated/train.dat"
+    path = conv.redirect("data|train.dat")
     
     with open(path,"r") as lines:
         tsvin = csv.reader(lines,delimiter='\t')

@@ -26,6 +26,7 @@ def evaluate(predictfile,outfile):
     accuracy = float(correct)/float(total)
     
     output = StringIO()
+    output.write( "Srouce: %s\n"%(predictfile) )
     output.write( "Total = %s\n" % total )
     output.write( "Correct = %s\n" % correct )
     output.write( "Accuracy = %s\n" % accuracy )
@@ -42,5 +43,6 @@ def evaluate(predictfile,outfile):
         fl.write(output.getvalue())
             
 if __name__ == "__main__":
-    evaluate(conv.redirect("svm|predicted.dat"),"svm_results.dat")
+    evaluate(conv.redirect("svm|linear_1vs1_l1.predicted.dat"),"svm_linear_1vs1_l1_results.dat")
+    evaluate(conv.redirect("svm|linear_1vsR_l1.predicted.dat"),"svm_linear_1vsR_l1_results.dat")
     evaluate(conv.redirect("naive|predicted.dat"),"naive_results.dat")

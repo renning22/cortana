@@ -42,15 +42,18 @@ def subsequence(a,b):
     
 def redirect(inpt):
     candidates = []
-    terms = inpt.strip().decode('utf-8').split('|')
+    terms = inpt.strip().lower().decode('utf-8').split('|')
+    terms = expand_list([i.split('_') for i in terms])
+    terms = expand_list([i.split('.') for i in terms])
     for dir, dirs, files in os.walk(root):
         for file in files:
             rel_path = os.path.normpath( os.path.normcase(os.path.relpath(dir+"/"+file,root)) );
             
             #print "%s,%s,%s , %s" % (dir,dirs,file,rel_path)
 
-            path_terms = rel_path.split('\\')
+            path_terms = rel_path.lower().split('\\')
             path_terms = expand_list([i.split('_') for i in path_terms])
+            path_terms = expand_list([i.split('.') for i in path_terms])
             
             #print terms
             #print path_terms

@@ -11,7 +11,7 @@ from util import *
 import codecs
 
 
-def train(modelfile,trainmatfile):
+def train(modelfile,trainmatfile,C=1,reg='l1'):
     ""
 
     log._logger.info("Loading...")
@@ -19,12 +19,17 @@ def train(modelfile,trainmatfile):
     trainy = [r[1] for r in tsv.reader(conv.redirect("data|train.dat"))]
 
     log._logger.info("Training...")
-    clf = LinearSVC()
+    if reg == 'l1':
+        clf = LinearSVC(loss='l2',penalty='l1',dual=False)
+    else:
+        clf = LinearSVC(loss='l1',penalty='l2',dual=True)
     clf.fit(trainX,trainy)
     
     log._logger.info("Dumping to %s" % (modelfile))
     
     pickle.dump(clf,open(modelfile,'w'))
+    
+    return clf
 
 
 def test(modelfile,testmatfile,outfile):
@@ -43,6 +48,6 @@ def test(modelfile,testmatfile,outfile):
             fl.write( "%s\t%s\t%s\n" % (src[0],src[1],p) )
     
 if __name__ == "__main__":
-    train("linear_svm.model","bow|train.vectorized.mat")
+    train("linear_svm.model","bow|train.vectorized.mat",reg='l2')
     test("linear_svm.model","bow|test.vectorized.mat","predicted.dat")
     

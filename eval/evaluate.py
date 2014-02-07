@@ -7,9 +7,9 @@ Created on Thu Feb 06 02:30:16 2014
 
 import pandas
 import numpy as np
-from collections import defaultdict
 from util import *
 import codecs
+from cStringIO import StringIO
 
 def evaluate(predictfile,outfile):
     
@@ -25,16 +25,21 @@ def evaluate(predictfile,outfile):
     
     accuracy = float(correct)/float(total)
     
+    output = StringIO()
+    output.write( "Total = %s\n" % total )
+    output.write( "Correct = %s\n" % correct )
+    output.write( "Accuracy = %s\n" % accuracy )
+    output.write( "\n" )
+    
+    output.write( "Confusion Matrix:\n" )
+    
+    frame = pandas.DataFrame(table,sorted(classes.keys()),sorted(classes.keys()))
+    output.write( "%s\n"%(str(frame)) )
+    
+    print output.getvalue()
+    
     with codecs.open(outfile,'w',encoding='utf-8') as fl:
-        fl.write( "Total = %s\n" % total )
-        fl.write( "Correct = %s\n" % correct )
-        fl.write( "Accuracy = %s\n" % accuracy )
-        fl.write( "\n" )
-        
-        fl.write( "Confusion Matrix:\n" )
-        
-        frame = pandas.DataFrame(table,sorted(classes.keys()),sorted(classes.keys()))
-        fl.write( "%s\n"%(str(frame)) )
+        fl.write(output.getvalue())
             
 if __name__ == "__main__":
     evaluate(conv.redirect("svm|predicted.dat"),"svm_results.dat")

@@ -1,0 +1,3 @@
+python sk_train.py --input ../../raw_data/aggregated/train.dat 
+echo "Testing..."
+python sk_decode.py

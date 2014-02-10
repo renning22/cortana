@@ -18,7 +18,7 @@ BEGIN {
 }
 
 END {
-    printf("%8s\t%8s\t%8s\t%8s\n", "Domain", "Predicted", "Recall", "F1-Score");
+    printf("%8s\t%8s\t%8s\t%8s\n", "Domain", "Precision", "Recall", "F1-Score");
     for (domain in gold) {
         precision = correct[domain] / predicted[domain]
         recall = correct[domain] / gold[domain]

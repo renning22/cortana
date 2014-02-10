@@ -129,7 +129,6 @@ if __name__ == "__main__":
     cmd.add_argument("--terms", help="path of the terms file")
     cmd.add_argument("--alpha", help="alpha of discounting", type=float, default=0.5)
     cmd.add_argument("--cv", help="enable cross validation", type=int, default=0)
-
     args = cmd.parse_args()
 
     naive = NaiveBayes(args.input, args.terms, args.alpha)

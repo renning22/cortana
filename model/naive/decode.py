@@ -3,13 +3,13 @@ import cPickle as pickle
 import argparse
 import numpy as np
 
-ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
-sys.path.append(ROOT)
+from train import NaiveBayes
 from util import *
 from util.log import _logger
 from model.naive.train import NaiveBayes
 from model.naive.train_with_cluster import ClusteredNaiveBayes
 from featurized.terms.term_categorize import term_category, g_term_count
+from rep.gini.decode import get_gini
 
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
 
@@ -41,7 +41,7 @@ class NaiveDecoder(object):
         assert(type(term) == type(domain) == unicode)
         val = self.posterior_prob(term, domain)
         assert val < 0
-        return -math.pow(-val, 1.0 / 30000.0), val
+        return -math.pow(-val, 1.0 / 1000.0) * get_gini(term)
 
     def get_score(self, terms, domain):
         # a priori of domain distribution here doesn't make much sense, the value should be from live data

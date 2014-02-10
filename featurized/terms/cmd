@@ -1,3 +1,1 @@
 cat ../../raw_data/aggregated/train.dat | awk -F '\t' -f extract.awk | sort | uniq -c | awk '{print $2, $1, NR-1}' | sort -n -r -k 2 > terms.dat
-
-

@@ -33,15 +33,17 @@ def term_category(term):
     if type(term) != unicode:
         term = term.decode('utf-8')
 
-    DIGITS = r'[0-9]+$'
-    CH_DIGITS = ur'[零一二三四五六七八九十千百万亿]+$'
+    DIGITS = r'^[0-9]+$'
+    CH_DIGITS = ur'^[零一二三四五六七八九十千百万亿]+$'
     for tag in g_lexicon:
         if term in g_lexicon[tag]:
             return tag
     if re.match(DIGITS, term):
-        return u"__DIGITS_"
+        return u"__DIGITS__"
     if re.match(CH_DIGITS, term):
         return u"__CHDIGITS__"
+    if re.match(r'^[0-9]{1,2}[ap]m$', term):
+        return u"__TIMEAMPM__"
     if g_term_count.setdefault(term, 0) <= RARE:
         return u"__RARE__"
     return term

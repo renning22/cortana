@@ -4,11 +4,10 @@ import argparse
 import numpy as np
 
 from train import NaiveBayes
-ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
-sys.path.append(ROOT)
 from util import *
 from util.log import _logger
 from featurized.terms.term_categorize import term_category, g_term_count
+from rep.gini.decode import get_gini
 
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
 
@@ -36,7 +35,7 @@ class NaiveDecoder(object):
             else self.model.count[term, domain]
         val = math.log(float(c) / self.model.count[domain], 10.0)
         assert val < 0
-        return -math.pow(-val, 1.0 / 10.0)
+        return -math.pow(-val, 1.0 / 1000.0) * get_gini(term)
 
     def get_score(self, terms, domain):
         # a priori of domain distribution here doesn't make much sense, the value should be from live data

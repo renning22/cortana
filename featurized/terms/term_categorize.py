@@ -46,5 +46,29 @@ def term_category(term):
         return u"__RARE__"
     return term
 
+def gen_categorized_terms(path):
+    found = set()
+    outfile = open(path, 'w')
+    for term in g_term_count:
+        term = term_category(term)
+        if term not in found:
+            found.add(term)
+            outfile.write("%s\n" % term.encode('utf-8'))
+    outfile.close()
+
+g_categorized_term_idx = dict()
+def load_categorized_terms(path):
+    with open(path) as infile:
+        for line in infile:
+            term = line.strip().decode('utf-8')
+            g_categorized_term_idx[term] = len(g_categorized_term_idx)
+
+def get_categorized_term_idx(term):
+    return g_categorized_term_idx[term]
+
 load()
 
+if __name__ == "__main__":
+    gen_categorized_terms('./categorized_terms.dat')
+else:
+    load_categorized_terms('./categorized_terms.dat')

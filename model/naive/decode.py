@@ -3,11 +3,12 @@ import cPickle as pickle
 import argparse
 import numpy as np
 
-from train import NaiveBayes
 ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 sys.path.append(ROOT)
 from util import *
 from util.log import _logger
+from model.naive.train import NaiveBayes
+from model.naive.train_with_cluster import ClusteredNaiveBayes
 from featurized.terms.term_categorize import term_category, g_term_count
 
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
@@ -28,15 +29,19 @@ class NaiveDecoder(object):
         ret = self.decode(sentence)
         return max(ret.items(), key = lambda x: x[1])[0]
 
-    def term_score(self, term, domain):
-        assert(type(term) == type(domain) == unicode)
+    def posterior_prob(self, term, domain):
         #backoff = self.model.domain_backoff[domain]
         backoff = self.backoff
         c = backoff if term not in self.model.domain_has[domain] \
             else self.model.count[term, domain]
         val = math.log(float(c) / self.model.count[domain], 10.0)
+        return val
+
+    def term_score(self, term, domain):
+        assert(type(term) == type(domain) == unicode)
+        val = self.posterior_prob(term, domain)
         assert val < 0
-        return -math.pow(-val, 1.0 / 10.0)
+        return -math.pow(-val, 1.0 / 30000.0), val
 
     def get_score(self, terms, domain):
         # a priori of domain distribution here doesn't make much sense, the value should be from live data
@@ -44,12 +49,12 @@ class NaiveDecoder(object):
         detail = {'__priori__': val}
         term_set = set()
         for term in terms:
-            term = term_category(term)
+            term = self.model.get_category(term)
             if term in term_set:
                 continue
             term_set.add(term)
-            score = self.term_score(term, domain)
-            detail[term] = score
+            score, original = self.term_score(term, domain)
+            detail[term] = score, original
             val += score
         return val, detail
 
@@ -100,21 +105,36 @@ def serv(model):
         for domain, score, detail in lst:
             print score, domain
             for term in query.split(' '):
-                cate = term_category(term)
-                sys.stdout.write('%s(%s, %d): %.4f\t' % (term, cate, g_term_count[term], detail[cate]))
-            print '\n%s\n' % ('-' * 20)        
+                cate = decoder.model.get_category(term)
+                sys.stdout.write('%s(%s, %d): %.4f\t' % (term, cate, g_term_count[term], detail[cate][1]))
+            print '\n%s\n' % ('-' * 20)
+
+def serv_prob(model):
+    decoder = NaiveDecoder(model)
+    while True:
+        query = raw_input('Input term, q to quit:\n').decode('utf-8')
+        if query == 'q':
+            return
+        for domain in decoder.model.domains:
+            prob = decoder.posterior_prob(query, domain)
+            sys.stdout.write('%s: %.4f  ' % (domain, prob))
+        print ''
 
 if __name__ == "__main__":
     cmd = argparse.ArgumentParser()
-    cmd.add_argument("--serv", help = "run as server", default=False, dest="as_server", action='store_true')
+    cmd.add_argument("--serv", help = "run as server", dest="as_server", action='store_true')
+    cmd.add_argument("--serv-prob", help = "run as server compare posterior probability of terms under every domain", dest="as_server_prob", action='store_true')
     cmd.add_argument("--path", help = "path to the test data", default=TEST_FILE_PATH)
+    cmd.add_argument("--model-path", help = "path to the naive bayes model file")
     args = cmd.parse_args()
+    print args
 
     _logger.info("Loading model")
-    model = pickle.load(open('naive.model'))
-
+    model = pickle.load(open(args.model_path))
 
     if args.as_server:
         serv(model)
+    elif args.as_server_prob:
+        serv_prob(model)
     else:
         test(model, args.path)

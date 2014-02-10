@@ -26,6 +26,9 @@ class NaiveBayes(object):
         self.reset()
         self.load_data()
 
+    def get_category(self, term):
+        return term_category(term)
+
     def load_data(self):
         _logger.info("Loading training data from %s" % self.train_path)
         self.X = []
@@ -60,6 +63,8 @@ class NaiveBayes(object):
         self.reset()
         size = len(y)
         for i in xrange(size):
+            if (i + 1) % 10000 == 0:
+                _logger.debug("%d processed" % (i+1))
             terms = X[i]
             domain = y[i]
             self.training_sentence_count += 1
@@ -67,7 +72,7 @@ class NaiveBayes(object):
             self.domain_count[domain] += 1
             term_set = set()
             for term in terms:
-                term = term_category(term)
+                term = self.get_category(term)
                 if term in term_set:
                     continue
                 term_set.add(term)

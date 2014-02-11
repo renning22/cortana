@@ -15,9 +15,11 @@ E.g.
 @author: Ning
 """
 
+
 from setenv import root
 import os,sys
 from log import _logger
+
 
 
 def argmax(ls):
@@ -52,9 +54,10 @@ def redirect(inpt):
             #print "%s,%s,%s , %s" % (dir,dirs,file,rel_path)
 
             path_terms = rel_path.lower().split('\\')
-            path_terms = expand_list([i.split('_') for i in path_terms])
+            path_terms = expand_list([i.split('/') for i in path_terms])
             path_terms = expand_list([i.split('.') for i in path_terms])
-            
+            path_terms = expand_list([i.split('_') for i in path_terms])
+
             #print terms
             #print path_terms
             
@@ -70,7 +73,7 @@ def redirect(inpt):
             for i in candidates:
                 _logger.warning("\t%s\n"%(i))
 
-        ret = os.path.abspath(root+"/"+candidates[0])
+        ret = os.path.normcase( os.path.abspath(root+"/"+candidates[0]) )
         _logger.info('Redirect "%s" to "%s"' % (inpt,ret))
         return ret
 

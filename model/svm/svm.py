@@ -12,13 +12,14 @@ from sklearn.svm import (SVC,LinearSVC)
 import cPickle as pickle
 from util import *
 import codecs
+import argparse
 
-
-def linear_train(modelfile,trainmatfile,vs='1vsR',C=1,regularize='l1'):
+def linear_train(modelfile,trainmatfile,vs='1vsR',C=1,regularize='l2',gridsearch=False):
     ""
 
     log._logger.info("linear_train : %s " % (modelfile))
     log._logger.info("Loading...")
+
     trainX = pickle.load(open(conv.redirect(trainmatfile)))
     trainy = [r[1] for r in tsv.reader(conv.redirect("data|train.dat"))]
 
@@ -28,9 +29,9 @@ def linear_train(modelfile,trainmatfile,vs='1vsR',C=1,regularize='l1'):
     log._logger.info("Training...")
     if vs == '1vsR':
         if regularize == 'l1':
-            clf = LinearSVC(loss='l2',penalty='l1',dual=False)
+            clf = LinearSVC(loss='l2',penalty='l1',dual=False,C=C)
         else:
-            clf = LinearSVC(loss='l1',penalty='l2',dual=True)
+            clf = LinearSVC(loss='l1',penalty='l2',dual=True,C=C)
     elif vs == '1vs1':
         clf = SVC(kernel='linear')
     else:
@@ -61,9 +62,21 @@ def test(modelfile,testmatfile,outfile):
             fl.write( "%s\t%s\t%s\n" % (src[0],src[1],p) )
     
 if __name__ == "__main__":
+
+    cmd = argparse.ArgumentParser()
+    cmd.add_argument("--input", help="path of the training data",default="bow|train.vectorized.mat")
+    cmd.add_argument("--output", help="path of the output",default="linear_1vsR_l1.predicted.dat")
+    cmd.add_argument("--test", help="path of the test data",default="bow|test.vectorized.mat")
+    cmd.add_argument("--regularize", help="regularition",default="l2")
+    cmd.add_argument("--C", help="alpha of discounting", type=float, default=1)
+    cmd.add_argument("--vs", help="enable vs", default='1vsR')
+    cmd.add_argument("--gridsearch", help="enable gridsearch", type=bool, default=False)
+    
+    args = cmd.parse_args()
+
     #linear_train("linear_1vs1_l1.model","bow|train.vectorized.mat",vs='1vs1',regularize='l1')
     #test("linear_1vs1_l1.model","bow|test.vectorized.mat","linear_1vs1_l1.predicted.dat")
-
-    linear_train("linear_1vsR_l1.model","bow|train.vectorized.mat",vs='1vsR',regularize='l1')
-    test("linear_1vsR_l1.model","bow|test.vectorized.mat","linear_1vsR_l1.predicted.dat")
+    
+    linear_train("svm.model",trainmatfile=args.input,vs=args.vs,regularize=args.regularize,gridsearch=args.gridsearch,C=args.C)
+    test("svm.model",args.test,args.output)
     

@@ -1,0 +1,14 @@
+python model/svm/svm.py --output 001.predicted.dat --C 0.01
+python eval/evaluate.py --input 001.predicted.dat --output 0.01.txt
+python model/svm/svm.py --output 01.predicted.dat --C 0.1
+python eval/evaluate.py --input 01.predicted.dat --output 1.txt
+python model/svm/svm.py --output 1.predicted.dat --C 1
+python eval/evaluate.py --input 1.predicted.dat --output 1.txt
+python model/svm/svm.py --output 1.predicted.dat --C 10
+python eval/evaluate.py --input 10.predicted.dat --output 10.txt
+python model/svm/svm.py --output 100.predicted.dat --C 100
+python eval/evaluate.py --input 100.predicted.dat --output 100.txt
+python model/svm/svm.py --output 1000.predicted.dat --C 1000
+python eval/evaluate.py --input 1000.predicted.dat --output 1000.txt
+python model/svm/svm.py --output 10000.predicted.dat --C 10000
+python eval/evaluate.py --input 10000.predicted.dat --output 10000.txt

@@ -10,6 +10,7 @@ import numpy as np
 from util import *
 import codecs
 from cStringIO import StringIO
+import argparse
 
 def evaluate(predictfile,outfile):
     
@@ -43,6 +44,9 @@ def evaluate(predictfile,outfile):
         fl.write(output.getvalue())
             
 if __name__ == "__main__":
-    evaluate(conv.redirect("svm|linear_1vs1_l1.predicted.dat"),"svm_linear_1vs1_l1_results.dat")
-    evaluate(conv.redirect("svm|linear_1vsR_l1.predicted.dat"),"svm_linear_1vsR_l1_results.dat")
-    evaluate(conv.redirect("naive|predicted.dat"),"naive_results.dat")
+    cmd = argparse.ArgumentParser()
+    cmd.add_argument("--input", help="path of the input predicted",default="svm|linear_1vs1_l1.predicted.dat")
+    cmd.add_argument("--output", help="path of the results",default="svm_linear_1vs1_l1_results.dat")
+    args = cmd.parse_args()
+ 
+    evaluate(conv.redirect(args.input),args.output)

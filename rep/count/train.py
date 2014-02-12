@@ -7,7 +7,7 @@ from collections import defaultdict
 ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 sys.path.append(ROOT)
 from util.log import _logger
-from featurized.terms.term_categorize import term_category
+from feat.terms.term_categorize import term_category
 
 DEFAULT_OUTPATH = "./count.dat"
 

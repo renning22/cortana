@@ -22,9 +22,9 @@ We intend to place the data and code in the data oriented manner. There are four
 
 Accordingly, the data can be categoried into the five types(one more for the raw data and some data cleaning). Specifically, five folders will be used to place the data.
 
-**raw_data**. We put the training data obtained from archive here. Inside it, *raw_data/aggregated* will be a single file containing all sentences from each domain, for traning and testing each.
+**data**. We put the training data obtained from archive here. Inside it, *data/aggregated* will be a single file containing all sentences from each domain, for traning and testing each.
 
-**featurized**. We put featurized data inside here. Each sub-folder will be a way of featurization. For instance, *featurized/bow* will be the bag of words model.
+**feat**. We put featurized data inside here. Each sub-folder will be a way of featurization. For instance, *feat/bow* will be the bag of words model.
 
 **rep**. Here lives the data transformed from representation learning and/or dimention reduction. As above, each sub-folder will be the output of one learning method.
 
@@ -36,9 +36,11 @@ I suggest we keep *.tsv* extention for the original data and use *.dat* for the 
 
 ### Conventions
 
-Each step will fetch traning/input data from a foler in the previous step and write to its own folder. For example, if there's one method that run LDA to reduce dimention and get input from 'Bag of Words' model. It should read input from *featurized/bow/train.dat* and write the transformed data to *rep/lda/train.dat*.
+1. Run setenv.py firstly when you start a new interpreter
 
-Each folder that contains an algorithm should have a **cmd** file. Inside the cmd file is the command that will run the algorithm and generate the data. We should put the description of the algorithm, assumption of the input data and other information in this cmd file as comments. In case the description get too lengthy, we add a README.md file in the *current* folder.
+2. Each step will fetch traning/input data from a foler in the previous step and write to its own folder. For example, if there's one method that run LDA to reduce dimention and get input from 'Bag of Words' model. It should read input from *feat/bow/train.dat* and write the transformed data to *rep/lda/train.dat*.
+
+3. Each folder that contains an algorithm should have a **cmd** file. Inside the cmd file is the command that will run the algorithm and generate the data. We should put the description of the algorithm, assumption of the input data and other information in this cmd file as comments. In case the description get too lengthy, we add a README.md file in the *current* folder.
 
 ### Idears worth exploration
 

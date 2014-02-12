@@ -8,7 +8,7 @@ sys.path.append(ROOT)
 from util import *
 from util.log import _logger
 from model.naive.train import NaiveBayes
-from featurized.terms.term_categorize import term_category, g_term_count
+from feat.terms.term_categorize import term_category, g_term_count
 import rep.word_clustering.decode as word_clustering
 
 class ClusteredNaiveBayes(NaiveBayes):

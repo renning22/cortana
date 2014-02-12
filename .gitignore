@@ -5,6 +5,8 @@
 *.txt
 *.snt
 # Ignore raw data
-raw_data/from_archive/*
+data/from_archive/*
 # No need to check in model files, too large
 *.model
+*.mat
+*.bin

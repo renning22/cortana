@@ -6,7 +6,7 @@ ROOT = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 sys.path.append(ROOT)
 from util import *
 from util.log import _logger
-from featurized.terms.term_categorize import term_category, g_term_count
+from feat.terms.term_categorize import term_category, g_term_count
 from model.naive.train import NaiveBayes
 from model.naive.decode import NaiveDecoder
 

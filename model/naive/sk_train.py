@@ -12,12 +12,12 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.feature_selection import SelectKBest, chi2
 from util.log import _logger
 from util import *
-from featurized.terms.term_categorize import term_category
+from feat.terms.term_categorize import term_category
 from rep.gini.decode import top as top_gini
         
 
 pipeline = Pipeline([
-        ("vert", CountVectorizer(min_df = 1, binary = True, ngram_range = (1, 1), analyzer = Analyzer())),
+        ("vert", CountVectorizer(min_df = 1, binary = True, ngram_range = (1, 1), tokenizer = Tokenizer())),
         ("select", SelectKBest(chi2, k="all")),
         ("nb", BernoulliNB(fit_prior = False)),
         ])

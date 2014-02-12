@@ -15,21 +15,21 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.feature_selection import SelectKBest, chi2
 from util.log import _logger
 from util import *
-from featurized.terms.term_categorize import term_category
+from feat.terms.term_categorize import term_category
 
 CLFs = {
     "nb": BernoulliNB(fit_prior = False),
     "sgd": SGDClassifier(alpha=.0001, n_iter=50,
                          penalty="l2"),
-    "svm": LinearSVC(loss='l1', penalty="l2"),
+    "svm_ovr": LinearSVC(loss='l1', penalty="l2", multi_class="ovr"),
+    "svm_sin": LinearSVC(loss='l1', penalty="l2", multi_class="crammer_singer"),
     "knn": KNeighborsClassifier(n_neighbors=10, weights = 'distance')
 }
 
 
-
 if __name__ == "__main__":
     cmd = argparse.ArgumentParser()
-    cmd.add_argument("--input", help="path of the training data", required=True)
+    cmd.add_argument("--input", help="path of the training data", default = TRAIN_FILE_PATH)
     cmd.add_argument("--algo", help="alogrithm to use", required=True, choices = CLFs.keys())
     args = cmd.parse_args()
 
@@ -37,7 +37,8 @@ if __name__ == "__main__":
     _logger.info("Will use algorithm %s" % args.algo)
 
     pipeline = Pipeline([
-            ("vert", TfidfVectorizer(min_df = 1, binary = False, ngram_range = (1, 1), analyzer = Analyzer())),
+            ("vert", TfidfVectorizer(min_df = 1, binary = False, ngram_range = (1, 3),
+                                     tokenizer = Tokenizer())),
             #("select", SelectKBest(chi2, k=12000)),
             ("clf", CLFs[args.algo]),
             ])

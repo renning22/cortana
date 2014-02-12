@@ -1,3 +1,3 @@
-python train.py --input ../../raw_data/aggregated/train.dat --terms ../../featurized/terms/terms.dat
+python train.py
 echo "Testing..."
 python decode.py --model-path ./naive.model

@@ -1,5 +1,9 @@
-from featurized.terms.term_categorize import term_category
+import sys, os
+from feat.terms.term_categorize import term_category
 from util.log import _logger
+
+TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../data/aggregated/test.dat")
+TRAIN_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../data/aggregated/train.dat")
 
 def argmax(ls):
     if not ls:
@@ -20,7 +24,7 @@ def load_data(train_path):
             y.append(domain)
     return X, y
 
-class Analyzer(object):
+class Tokenizer(object):
     def __init__(self):
         pass
 
@@ -28,3 +32,7 @@ class Analyzer(object):
         terms = sentence.strip().split(' ')
         ret = [term_category(term) for term in terms]
         return list(ret)
+
+__all__ = ["tsv", "conv", "log", "Tokenizer", "load_data", "argmax", "TEST_FILE_PATH", "TRAIN_FILE_PATH"]
+
+

@@ -13,11 +13,10 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.metrics import accuracy_score
 from util.log import _logger
-from featurized.terms.term_categorize import term_category
+from util import *
+from feat.terms.term_categorize import term_category
 
-from train import Analyzer, CLFs, load_data
-
-TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
+from train import CLFs
 
 def serv(clf):
     domains = clf.named_steps['clf'].classes_
@@ -26,8 +25,8 @@ def serv(clf):
         if query == u'q':
             return
         detail = sorted(zip(domains, clf.decision_function([query])[0]),
-                        key = lambda x: -x[1])[:3]
-
+                        key = lambda x: -x[1])
+        print 'result:', clf.predict([query])[0], '\n'
         for domain, val in detail:
             print domain, val
 
@@ -55,4 +54,5 @@ if __name__ == "__main__":
         sentence, pred, gold = X[i], y_pred[i], y[i]
         outfile.write("%s\t%s\t%s\n" % (sentence.encode('utf-8'), pred.encode('utf-8'), gold.encode('utf-8')))
 
-    _logger.info("accuracy: %f" % accuracy_score(y, y_pred))
+    _logger.info("accuracy: %f, %d records" % (accuracy_score(y, y_pred),
+                                               len(y)))

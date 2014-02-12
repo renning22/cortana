@@ -7,9 +7,6 @@ from sklearn.metrics import accuracy_score
 from util.log import _logger
 from util import *
 
-TRIGGER_THRESHOLD = 2.0
-
-TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../../raw_data/aggregated/test.dat")
 front = None
 
 def test(X, y):
@@ -30,12 +27,14 @@ def test(X, y):
         pred = front_result[0][0]
         assert pred == front.predict([sent])[0]
 
-        if front_result[0][1] - front_result[1][1] < TRIGGER_THRESHOLD:
+        if front_result[0][1]  < 0.0 or front_result[1][1] > 0.0:
             p = front_result[0][0]
             q = front_result[1][0]
             svm_pred = decode_svm.discriminate(p, q, sent)[0]
-            discfile.write("%s\t%s\t%s\t%s\n" % \
-                               (sent.encode('utf-8'), pred.encode('utf-8'),
+            discfile.write("%s\t%s\t%s\t%s\t%s\n" % \
+                               (sent.encode('utf-8'),
+                                p.encode('utf-8'),
+                                q.encode('utf-8'),
                                 svm_pred.encode('utf-8'), gold.encode('utf-8')))
             pred = svm_pred
 

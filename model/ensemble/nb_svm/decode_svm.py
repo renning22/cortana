@@ -14,18 +14,19 @@ from sklearn.feature_selection import SelectKBest, chi2
 from sklearn.metrics import accuracy_score
 from util.log import _logger
 from util import *
-from featurized.terms.term_categorize import term_category
-
-
-TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../../raw_data/aggregated/test.dat")
+from feat.terms.term_categorize import term_category
 
 svms = None
 
-def discriminate(p, q, sent):
+def discriminate(p, q, sent, detail = False):
     key = tuple(sorted([p, q]))
     clf = svms[key]
+    # _logger.debug("comparing between %s and %s" % (clf.named_steps['svm'].classes_[0],
+    #                                                clf.named_steps['svm'].classes_[1]))
+    if detail:
+        return clf.predict([sent]), clf.decision_function([sent])[0]
+
     return clf.predict([sent])
-    
 
 def serv():
     while True:
@@ -38,7 +39,7 @@ def serv():
             print "must have two domains:", len(domains), domains
             continue
 
-        print "result: ", discriminate(domains[0], domains[1], query)
+        print discriminate(domains[0], domains[1], query, detail = True)
 
 def test(X, y):
     by_domain = defaultdict(list)

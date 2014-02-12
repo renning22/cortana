@@ -6,10 +6,8 @@ from scipy.sparse import coo_matrix
 from sklearn.metrics import accuracy_score
 from util.log import _logger
 from util import *
-from featurized.terms.term_categorize import term_category
+from feat.terms.term_categorize import term_category
 
-
-TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
 
 def get_vert_idx(vert, term):
     return np.nonzero(vert.transform([term]))[1][0]

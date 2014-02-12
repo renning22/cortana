@@ -8,10 +8,9 @@ from util import *
 from util.log import _logger
 from model.naive.train import NaiveBayes
 from model.naive.train_with_cluster import ClusteredNaiveBayes
-from featurized.terms.term_categorize import term_category, g_term_count
+from feat.terms.term_categorize import term_category, g_term_count
 from rep.gini.decode import get_gini
 
-TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
 
 def extract(sent):
     return ' '.join(sorted(list(set(sent.split(' '))),
@@ -71,7 +70,7 @@ class NaiveDecoder(object):
 
         return val, detail
 
-def test(model, test_file_path = TEST_FILE_PATH):
+def test(model, test_file_path):
     total = 0
     correct = 0
     decoder = NaiveDecoder(model)
@@ -89,7 +88,7 @@ def test(model, test_file_path = TEST_FILE_PATH):
             #sentence = extract(sentence)
 
             result = decoder.decode(sentence)
-            predicted, _ = argmax(result.items())
+            predicted, _ = conv.argmax(result.items())
             outfile.write("%s\t%s\t%s\n" % (sentence.encode('utf-8'), predicted.encode('utf-8'), tag.encode('utf-8')))
             if predicted == tag:
                 correct += 1
@@ -142,20 +141,33 @@ def serv_prob(model):
 
 if __name__ == "__main__":
     cmd = argparse.ArgumentParser()
+<<<<<<< HEAD
     cmd.add_argument("--serv", help = "run as server", dest="as_server", action='store_true')
     cmd.add_argument("--serv-prob", help = "run as server compare posterior probability of terms under every domain", dest="as_server_prob", action='store_true')
     cmd.add_argument("--path", help = "path to the test data", default=TEST_FILE_PATH)
     cmd.add_argument("--model-path", help = "path to the naive bayes model file")
+=======
+    cmd.add_argument("--serv", help = "run as server", default=False, dest="as_server", action='store_true')
+    cmd.add_argument("--path", help = "path to the test data", default='test.dat')
+>>>>>>> bf1b826a908169fa2340477f367736f63a5f7875
     args = cmd.parse_args()
     print args
 
     _logger.info("Loading model")
+<<<<<<< HEAD
     model = pickle.load(open(args.model_path))
+=======
+    model = pickle.load(open(conv.redirect('naive.model')))
+>>>>>>> bf1b826a908169fa2340477f367736f63a5f7875
 
     if args.as_server:
         serv(model)
     elif args.as_server_prob:
         serv_prob(model)
     else:
+<<<<<<< HEAD
         test(model, args.path)
 
+=======
+        test(model, conv.redirect(args.path))
+>>>>>>> bf1b826a908169fa2340477f367736f63a5f7875

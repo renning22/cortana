@@ -1,0 +1,2 @@
+cat discriminated.dat | awk -F '\t' -f perf_disc.awk
+cat disc_wrong.dat | awk -F '\t' '{printf "%s\t%s\t%s\n", $3, $2, $1}' | sort -k 1,2 | awk '{print $1, $2}' | uniq -c | sort -r -n

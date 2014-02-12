@@ -22,7 +22,6 @@ class NaiveBayes(object):
         self.train_path = train_path
         self.term_path = term_path
         self.alpha = alpha
-        self.term_count = defaultdict(int)
         self.reset()
         self.load_data()
 
@@ -42,22 +41,14 @@ class NaiveBayes(object):
                 self.X.append(terms)
                 self.y.append(domain)
 
-        _logger.info("Loading terms from %s" % self.term_path)
-        with open(self.term_path) as term_file:
-            for line in term_file:
-                line = line.strip()
-                if line:
-                    term, count, _ = line.split(' ')
-                    count = int(count)
-                    self.term_count[term] = count
-        _logger.info("%d terms read from file" % len(self.term_count))
-
     def reset(self):
         self.training_sentence_count = 0
         self.count = defaultdict(int)
         self.domain_has = defaultdict(set)
         self.domain_count = defaultdict(int) # Number of sentence in each domain
         self.domain_backoff = dict()
+        self.term_count = defaultdict(int)
+        self.terms = set()
 
     def fit(self, X, y):
         self.reset()
@@ -76,8 +67,10 @@ class NaiveBayes(object):
                 if term in term_set:
                     continue
                 term_set.add(term)
+                self.terms.add(term)
                 self.count[term, domain] += 1
                 self.count[domain] += 1
+                self.term_count[term] += 1
                 self.domain_has[domain].add(term)
 
         for domain in self.domain_has:
@@ -85,7 +78,7 @@ class NaiveBayes(object):
             backoff /= len(self.term_count) - len(self.domain_has[domain])
             self.domain_backoff[domain] = backoff
 
-        self.domains = self.domain_backoff.keys()                
+        self.domains = self.domain_backoff.keys()
 
     def train(self):
         self.fit(self.X, self.y)

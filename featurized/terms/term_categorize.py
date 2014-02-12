@@ -70,7 +70,3 @@ def get_categorized_term_idx(term):
 
 load()
 
-if __name__ == "__main__":
-    gen_categorized_terms('./categorized_terms.dat')
-else:
-    load_categorized_terms('./categorized_terms.dat')

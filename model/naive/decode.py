@@ -13,8 +13,15 @@ from rep.gini.decode import get_gini
 
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../../raw_data/aggregated/test.dat")
 
+def extract(sent):
+    return ' '.join(sorted(list(set(sent.split(' '))),
+                           key = lambda term: -get_gini(term_category(term)))[:5])
+    
+    
+
 class NaiveDecoder(object):
     def __init__(self, model):
+        self.smooth = 10.0
         self.model = model
         self.backoff = np.mean(self.model.domain_backoff.values())
 
@@ -30,18 +37,23 @@ class NaiveDecoder(object):
         return max(ret.items(), key = lambda x: x[1])[0]
 
     def posterior_prob(self, term, domain):
-        #backoff = self.model.domain_backoff[domain]
-        backoff = self.backoff
-        c = backoff if term not in self.model.domain_has[domain] \
-            else self.model.count[term, domain]
-        val = math.log(float(c) / self.model.count[domain], 10.0)
-        return val
+        # backoff = self.backoff
+        # c = backoff if term not in self.model.domain_has[domain] \
+        #     else self.model.count[term, domain]
+        # val = math.log(float(c) / self.model.count[domain], 10.0)
+
+        val = float(self.model.count[term, domain] + self.smooth) / \
+            (self.model.count[domain] + self.smooth * len(self.model.term_count))
+
+        return math.log(val, 10.0)
 
     def term_score(self, term, domain):
         assert(type(term) == type(domain) == unicode)
         val = self.posterior_prob(term, domain)
         assert val < 0
-        return -math.pow(-val, 1.0 / 1000.0) * get_gini(term)
+        return val, val
+        #return val * get_gini(term), val
+        #return -math.pow(-val, 1.0 / 1000.0), val
 
     def get_score(self, terms, domain):
         # a priori of domain distribution here doesn't make much sense, the value should be from live data
@@ -56,6 +68,7 @@ class NaiveDecoder(object):
             score, original = self.term_score(term, domain)
             detail[term] = score, original
             val += score
+
         return val, detail
 
 def test(model, test_file_path = TEST_FILE_PATH):
@@ -72,6 +85,9 @@ def test(model, test_file_path = TEST_FILE_PATH):
                 continue
             total += 1
             sentence, tag = line.split('\t')
+
+            #sentence = extract(sentence)
+
             result = decoder.decode(sentence)
             predicted, _ = argmax(result.items())
             outfile.write("%s\t%s\t%s\n" % (sentence.encode('utf-8'), predicted.encode('utf-8'), tag.encode('utf-8')))
@@ -94,6 +110,8 @@ def serv(model):
             domains = decoder.model.domains
         else:
             domains = domains.split(' ')
+        
+        query = extract(query)
         ret = decoder.predict(query)
         print "\n%s\n%s\n" % (ret, '=' * 50)
         
@@ -106,7 +124,9 @@ def serv(model):
             print score, domain
             for term in query.split(' '):
                 cate = decoder.model.get_category(term)
-                sys.stdout.write('%s(%s, %d): %.4f\t' % (term, cate, g_term_count[term], detail[cate][1]))
+                sys.stdout.write('%s(%s, freq:%d, gini:%.3f): %.4f\t' % \
+                                     (term, cate, decoder.model.term_count[cate], 
+                                      get_gini(cate), detail[cate][1]))
             print '\n%s\n' % ('-' * 20)
 
 def serv_prob(model):
@@ -138,3 +158,4 @@ if __name__ == "__main__":
         serv_prob(model)
     else:
         test(model, args.path)
+

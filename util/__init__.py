@@ -1,5 +1,6 @@
 import sys, os
-from feat.terms.term_categorize import term_category
+# what about data aggregate importing this
+#from feat.terms.term_categorize import term_category
 from util.log import _logger
 
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../data/aggregated/test.dat")

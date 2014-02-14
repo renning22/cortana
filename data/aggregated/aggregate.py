@@ -12,26 +12,38 @@ import csv
 from util import *
 
 
-def aggregate():
+def aggregate(dirpath):
 
     out_dic = dict()
 
-    path = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) + "/../from_archive"
+    if dirpath is None:
+        path = os.path.abspath(os.path.dirname(os.path.abspath(__file__))) + "/../from_archive"
+    else:
+        path = dirpath
 
+    
     for root, dirs, files in os.walk(path):
-        for file in files:
-
-            m = re.match(r"chs_(\w+)\.slot\.(\w+)\.tsv",file.lower())
-            if m is not None:
-                print "Train/Test: %s , %s" % m.groups()
-                tag = m.group(2)
-                if not out_dic.has_key(tag):
-                    out_dic[tag] = open("%s.dat" % (tag),"w");
-                with open(os.path.join(root,file),"r") as lines:
-                    tsvin = csv.reader(lines,delimiter='\t')
-                    for row in tsvin:
-                        out_dic[tag].write( "%s\t%s\n" % (row[1],row[3]) )
-
+        if os.path.basename(root).lower() == 'wordbroken' :
+            for file in files:
+                m = re.match(r"chs_(\w+)\.slot\.train\.tsv",file.lower())
+                if m is not None:
+                    print "Domain: %s" % m.groups()
+                    tag = 'TRAIN'
+                    if not out_dic.has_key(tag):
+                        out_dic[tag] = open("%s.dat" % (tag),"w");
+                    with open(os.path.join(root,file),"r") as lines:
+                        tsvin = csv.reader(lines,delimiter='\t')
+                        for row in tsvin:
+                            out_dic[tag].write( "%s\t%s\n" % (row[1],row[3].lower()) )
+                elif file == 'domain.test.wbr.tsv':
+                    print "Test data"
+                    if not out_dic.has_key('test.dat'):
+                        out_dic['test.dat'] = open('test.dat','w');
+                    with open(os.path.join(root,file),"r") as lines:
+                        tsvin = csv.reader(lines,delimiter='\t')
+                        for row in tsvin:
+                            out_dic['test.dat'].write( "%s\t%s\n" % (row[1],row[3].lower()) )
+            
             m = re.match(r"(\w+)\.chs\.snt",file.lower());
             if m is not None:
                 print "Lexicon: %s" % m.groups()
@@ -50,8 +62,8 @@ def aggregate():
     
     print "Writing class lables"
     with open("class.dat",'w') as fl:
-        clss = {i[1] for i in tsv.reader("train.dat")} | {i[1] for i in tsv.reader("test.dat")}
+        clss = {i[1].lower() for i in tsv.reader("train.dat")} | {i[1] for i in tsv.reader("test.dat")}
         fl.write( '\n'.join( sorted(list(clss)) ) )
     
 if __name__ == "__main__":
-    aggregate()
+    aggregate(dirpath = sys.argv[1])

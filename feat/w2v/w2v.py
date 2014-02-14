@@ -1,42 +1,66 @@
 import numpy as np
+from scipy.sparse import *
 import word2vec
 import argparse
 import codecs
+import sys
+import cPickle as pickle
 from util import *
 
-model = word2vec.load( conv.redirect('data|vectors.bin') )
 
-nvocab = [ unicode(i,'utf-8') for i in model.vocab ]
-index = { v:n for n,v in enumerate(nvocab) }
-l2norm = model.l2norm
+def load(modelpath):
 
-for i in index:
-    print i
+    model = word2vec.load(modelpath)
 
-
-for filename in ['data|test.dat','data|train.dat']:
-    filepath = conv.redirect(filename)
+    nvocab = [ unicode(i,'utf-8') for i in model.vocab ]
+    index = { v:n for n,v in enumerate(nvocab) }
+    l2norm = model.l2norm
     
-    out = codecs.open( filename.split('|')[1] + '.embed' , 'w', encoding='utf-8' )
-    print 'out=%s' % (out)
+    return (index,l2norm)
+
+def vectorize(modelpath,binary=True):
+
+    index , l2norm = load(modelpath)
     
-    for row in tsv.reader(filepath):
+    for filename in ['data|test.dat','data|train.dat']:
     
-        n = 0
+        if not binary:
+            out = codecs.open( filename.split('|')[1].split('.')[0] + '.vectorized.dat' , 'w', encoding='utf-8' )
+            print 'out=%s' % (out)
+
+        mat = []
+        filepath = conv.redirect(filename)
+        for row in tsv.reader(filepath):
         
-        aggregate = np.zeros( model.l2norm.shape[1] )
-        for term in row[0].split():
-            ths = None
-            if term in index:
-                ths = l2norm[index[term]]
-            else:
-                print 'Not found %s' % (term)
-            if ths is not None:
-                aggregate += ths
-                n += 1
+            n = 0
+            
+            aggregate_vec = np.zeros( l2norm.shape[1] )
+            for term in row[0].split():
+                ths = None
+                if term in index:
+                    ths = l2norm[index[term]]
+                else:
+                    pass
+                    #print 'Not found %s' % (term)
+                if ths is not None:
+                    aggregate_vec += ths
+                    n += 1
+            
+            if n > 0:
+                aggregate_vec /= n
+             
+            mat.append( aggregate_vec )
+            
+            if not binary:
+                aggregate_vec_str = ' , '.join( map(str,aggregate_vec) )
+                out.write( "%s\t%s\n" % (row[0],aggregate_vec_str) )
+
+        if binary:
+            print "Dumping binary: " + filename.split('|')[1].split('.')[0] + '.vectorized.mat'
+            npmat = np.matrix( mat , dtype=np.float32 )
+            pickle.dump(npmat,open( filename.split('|')[1].split('.')[0] + '.vectorized.mat' ,'w'))
+
         
-        aggregate /= n
-        aggre_str = ' , '.join( map(str,aggregate) )
+if __name__ == "__main__":
+    vectorize( conv.redirect('data|news.w2v.bin') )
         
-        out.write( "%s\t%s\n" % (row[0],aggre_str) )
-    

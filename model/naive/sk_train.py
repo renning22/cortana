@@ -17,8 +17,7 @@ from rep.gini.decode import top as top_gini
         
 
 pipeline = Pipeline([
-        ("vert", CountVectorizer(min_df = 1, binary = True, ngram_range = (1, 1), tokenizer = Tokenizer())),
-        ("select", SelectKBest(chi2, k="all")),
+        ("vert", CountVectorizer(binary = True, ngram_range = (1, 3), tokenizer = Tokenizer())),
         ("nb", BernoulliNB(fit_prior = False)),
         ])
 
@@ -28,7 +27,7 @@ params = {
 
 if __name__ == "__main__":
     cmd = argparse.ArgumentParser()
-    cmd.add_argument("--input", help="path of the training data")
+    cmd.add_argument("--input", help="path of the training data", default=TRAIN_FILE_PATH)
     cmd.add_argument("--cv", help="enable cross validation", type=int, default=0)
     args = cmd.parse_args()
 

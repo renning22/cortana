@@ -16,7 +16,7 @@ from util.log import _logger
 from util import *
 from feat.terms.term_categorize import term_category
 
-from train import CLFs
+from train import CLFs, Vectorizer
 
 def serv(clf):
     domains = clf.named_steps['clf'].classes_
@@ -29,6 +29,31 @@ def serv(clf):
         print 'result:', clf.predict([query])[0], '\n'
         for domain, val in detail:
             print domain, val
+
+def test(test_file_path, clf):
+    X, y = load_data(test_file_path)
+    size = len(y)
+
+    scores = clf.decision_function(X)
+    # y_pred = []
+    # for i in xrange(size):
+    #     score = scores[i]
+    #     detail = sorted(zip(clf.named_steps['clf'].classes_,
+    #                         score),
+    #                     key = lambda x: -x[1])
+    #     if detail[0][1] >= 1.1:
+    #         y_pred.append(detail[0][0])
+    #     else:
+    #         y_pred.append(u'web')
+
+    y_pred = clf.predict(X)
+    outfile = open("predicted.dat", 'w')
+    for i in range(len(y)):
+        sentence, pred, gold = X[i], y_pred[i], y[i]
+        outfile.write("%s\t%s\t%s\n" % (sentence.encode('utf-8'), pred.encode('utf-8'), gold.encode('utf-8')))
+    _logger.info("accuracy: %f, %d records" % (accuracy_score(y, y_pred),
+                                               len(y)))
+
 
 if __name__ == "__main__":
 
@@ -46,13 +71,5 @@ if __name__ == "__main__":
         serv(clf)
         sys.exit(0)
 
-    X, y = load_data(args.path)
-    
-    y_pred = clf.predict(X)
-    outfile = open("%s.predicted.dat" % args.model.split('.')[0], 'w')
-    for i in range(len(y)):
-        sentence, pred, gold = X[i], y_pred[i], y[i]
-        outfile.write("%s\t%s\t%s\n" % (sentence.encode('utf-8'), pred.encode('utf-8'), gold.encode('utf-8')))
+    test(args.path, clf)
 
-    _logger.info("accuracy: %f, %d records" % (accuracy_score(y, y_pred),
-                                               len(y)))

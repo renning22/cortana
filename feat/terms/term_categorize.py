@@ -34,7 +34,7 @@ def term_category(term):
         term = term.decode('utf-8')
 
     DIGITS = r'^[0-9]+$'
-    CH_DIGITS = ur'^[零一二三四五六七八九十千百万亿]+$'
+    CH_DIGITS = ur'^[零一二三四五六七八九十百千万]+$'
     for tag in g_lexicon:
         if term in g_lexicon[tag]:
             return tag

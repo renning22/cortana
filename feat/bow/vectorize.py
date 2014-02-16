@@ -18,16 +18,17 @@ vectorizer.bin : dumped vectorizer object
 """
 
 import os,sys
+from util import *
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from util import *
 from scipy.sparse import *
 import cPickle as pickle
 from collections import defaultdict
 import codecs
+import argparse
 
 
-def vectorize(tfidf=True,binary=False):
+def vectorize(tfidf=True,binary=False,dump=False):
     
     log._logger.info("Loding...")
     
@@ -56,37 +57,34 @@ def vectorize(tfidf=True,binary=False):
     schema = vectorizer.get_feature_names()
     codecs.open("schema.dat",'w',encoding='utf-8').write('\n'.join(schema))
 
-    # debug
-#    log._logger.info("Dumping inversered...")
-#    codecs.open("test.vectorized.dat",'w',encoding='utf-8').write( '\n'.join( [(' '.join(i)) for i in vectorizer.inverse_transform(testX)] ) )
-#    codecs.open("train.vectorized.dat",'w',encoding='utf-8').write( '\n'.join( [(' '.join(i)) for i in vectorizer.inverse_transform(trainX)] ) )
+    if dump:
 
-    trainX = trainX.tocoo(False)
-    testX = testX.tocoo(False)
-    
-    log._logger.info("Dumping test.vectorized.dat...")
-    with codecs.open("test.vectorized.dat",'w',encoding='utf-8') as fl:
-        dc = defaultdict(list)
-        for r,c,v in zip(testX.row,testX.col,testX.data):
-            dc[r].append( "%s(%s)=%s"%(schema[c],c,v) )
-        for i in sorted(dc.keys()):
-            fl.write("%s\t%s\n" % (i, " , ".join(list(dc[i])) ))
-    
-    
-    log._logger.info("Dumping train.vectorized.dat...")
-    with codecs.open("train.vectorized.dat",'w',encoding='utf-8') as fl:
-        dc = defaultdict(list)
-        for r,c,v in zip(trainX.row,trainX.col,trainX.data):
-            dc[r].append( "%s(%s)=%s"%(schema[c],c,v) )
-        for i in sorted(dc.keys()):
-            fl.write("%s\t%s\n" % (i, " , ".join(list(dc[i])) ))
-#    
-#    log._logger.info("Dumping train.vectorized.dat...")
-#    with codecs.open("train.vectorized.dat",'w',encoding='utf-8') as fl:
-#        for i,r in enumerate(trainX):
-#            fl.write("%s\t" % (i))
-#            fl.write(' , '.join( ["%s(%s)=%s"%(schema[c],c,trainX[i,c]) for c in r.nonzero()[1]] ) )
-#            fl.write("\n")
+        trainX = trainX.tocoo(False)
+        testX = testX.tocoo(False)
+
+        log._logger.info("Dumping test.vectorized.dat...")
+        with codecs.open("test.vectorized.dat",'w',encoding='utf-8') as fl:
+            dc = defaultdict(list)
+            for r,c,v in zip(testX.row,testX.col,testX.data):
+                dc[r].append( "%s(%s)=%s"%(schema[c],c,v) )
+            for i in sorted(dc.keys()):
+                fl.write("%s\t%s\n" % (i, " , ".join(list(dc[i])) ))
+
+
+            log._logger.info("Dumping train.vectorized.dat...")
+            with codecs.open("train.vectorized.dat",'w',encoding='utf-8') as fl:
+                dc = defaultdict(list)
+                for r,c,v in zip(trainX.row,trainX.col,trainX.data):
+                    dc[r].append( "%s(%s)=%s"%(schema[c],c,v) )
+                for i in sorted(dc.keys()):
+                    fl.write("%s\t%s\n" % (i, " , ".join(list(dc[i])) ))
 
 if __name__ == "__main__":
-    vectorize(tfidf=True)
+    cmd = argparse.ArgumentParser()
+    cmd.add_argument("--tfidf", help="",type=bool, default=True)
+    cmd.add_argument("--binary", help="",type=bool, default=False)
+    cmd.add_argument("--dump", help="", type=bool, default=False)
+    
+    args = cmd.parse_args()
+
+    vectorize(tfidf=args.tfidf,binary=args.binary,dump=args.dump)

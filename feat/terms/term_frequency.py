@@ -31,8 +31,7 @@ def term_frequency(inputfile):
 if __name__ == "__main__":
     
     cmd = argparse.ArgumentParser()
-    cmd.add_argument("--input", help="training data",default="data|train.dat")
-    
+    cmd.add_argument("--input", help="training data",default="data|train_old.dat")
     args = cmd.parse_args()
 
     term_frequency(args.input)

@@ -2,9 +2,10 @@ import sys, os
 # what about data aggregate importing this
 #from feat.terms.term_categorize import term_category
 import numpy as np
-#from feat.terms.term_categorize import term_category
 from sklearn.feature_extraction.text import TfidfVectorizer
 from util.log import _logger
+from tsv import *
+from conv import *
 
 root = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../")
 

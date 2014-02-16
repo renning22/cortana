@@ -38,10 +38,8 @@ def term_category(term):
     for tag in g_lexicon:
         if term in g_lexicon[tag]:
             return tag
-    if re.match(DIGITS, term):
+    if re.match(DIGITS, term) or re.match(CH_DIGITS, term):
         return u"__DIGITS__"
-    if re.match(CH_DIGITS, term):
-        return u"__CHDIGITS__"
     if re.match(r'^[0-9]{1,2}[ap]m$', term):
         return u"__TIMEAMPM__"
     if g_term_count.setdefault(term, 0) <= RARE:

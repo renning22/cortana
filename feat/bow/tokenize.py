@@ -11,8 +11,14 @@ from feat.terms.term_categorize import term_category
 import codecs
 
 def parse(sentence):
-    for term in sentence.split():
-        yield term_category(term)
+    s1 = [term_category(term) for term in sentence.split()]
+    return s1
+
+    # for i in xrange(len(s1)):
+    #     if i > 0 and s1[i] == s1[i-1]:
+    #         continue
+    #     else:
+    #         yield s1[i]
     
 def tokenize():
     

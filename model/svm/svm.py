@@ -16,7 +16,7 @@ import codecs
 import argparse
 from scipy.sparse import csr_matrix
 
-def linear_train(trainfile,testfile,vs='1vsR',C=1,reg='l2', dumpmodel=False):
+def linear_train(trainfile,testfile,vs='1vsR',C=1,reg='l2', dump=False):
     ""
 
     log._logger.info("linear_train : %s , %s" % (trainfile,testfile))
@@ -48,10 +48,9 @@ def linear_train(trainfile,testfile,vs='1vsR',C=1,reg='l2', dumpmodel=False):
     print str(clf)+'\n'
         
     clf.fit(trainX,trainy)
-    
-    log._logger.info("Dumping to %s" % ('svm.model'))
-    
-    if dumpmodel:
+
+    if dump:
+        log._logger.info("Dumping to %s" % ('svm.model'))
         pickle.dump(clf,open("svm.model",'w'))
     
     if testfile is not None:

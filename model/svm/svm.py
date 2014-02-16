@@ -9,13 +9,14 @@ due to >= O(N^2) where N is number of trainning samples in libsvm's implementati
 """
 
 from sklearn.svm import (SVC,LinearSVC)
+from sklearn.preprocessing import StandardScaler
 import cPickle as pickle
 from util import *
 import codecs
 import argparse
 from scipy.sparse import csr_matrix
 
-def linear_train(trainfile,testfile,vs='1vsR',C=1,regularize='l2', dumpmodel=False):
+def linear_train(trainfile,testfile,vs='1vsR',C=1,reg='l2', dumpmodel=False):
     ""
 
     log._logger.info("linear_train : %s , %s" % (trainfile,testfile))
@@ -24,19 +25,27 @@ def linear_train(trainfile,testfile,vs='1vsR',C=1,regularize='l2', dumpmodel=Fal
     trainX = pickle.load(open(trainfile))
     trainy = [r[1] for r in tsv.reader(conv.redirect("data|train.dat"))]
 
+    # Normalize
+    #log._logger.info("Normolizing...")
+    scaler = StandardScaler(copy=True,with_mean=False)
+    #log._logger.info( str(scaler) )
+    #trainX = scaler.fit_transform(trainX)
+
     # Optimation
-    trainX = csr_matrix(trainX)
+    # trainX = csr_matrix(trainX)
     
     log._logger.info("Training...")
     if vs == '1vsR':
-        if regularize == 'l1':
-            clf = LinearSVC(loss='l2',penalty='l1',dual=False,C=C)
+        if reg == 'l1':
+            clf = LinearSVC(loss='l2',penalty='l1',dual=False,C=C,class_weight='auto')
         else:
-            clf = LinearSVC(loss='l1',penalty='l2',dual=True,C=C)
+            clf = LinearSVC(loss='l1',penalty='l2',dual=True,C=C,class_weight='auto')
     elif vs == '1vs1':
         clf = SVC(kernel='linear')
     else:
         raise "Not supported"
+
+    print str(clf)+'\n'
         
     clf.fit(trainX,trainy)
     
@@ -46,12 +55,12 @@ def linear_train(trainfile,testfile,vs='1vsR',C=1,regularize='l2', dumpmodel=Fal
         pickle.dump(clf,open("svm.model",'w'))
     
     if testfile is not None:
-        test(clf,testfile)
+        test(clf,scaler,testfile)
 
     return clf
 
 
-def test(model,testmatfile):
+def test(model,scaler,testmatfile):
     ""
     
     clf = model
@@ -59,6 +68,9 @@ def test(model,testmatfile):
     testX = pickle.load(open(testmatfile))
     testy = [r[1] for r in tsv.reader(conv.redirect("data|test.dat"))]
     
+    #log._logger.info("Normalizing...")
+    #testX = scaler.transform(testX)
+
     log._logger.info("Testing...")
     predicts = clf.predict(testX)
     
@@ -70,8 +82,8 @@ def test(model,testmatfile):
 if __name__ == "__main__":
 
     cmd = argparse.ArgumentParser()
-    cmd.add_argument("--input", help="which feature you use",default="bow")
-    cmd.add_argument("--regularize", help="regularition",default="l2")
+    cmd.add_argument("--input", help="which feature you use",default="com")
+    cmd.add_argument("--reg", help="reg",default="l2")
     cmd.add_argument("--C", help="parameter C", type=float, default=1)
     cmd.add_argument("--vs", help="enable vs", default='1vsR')
     
@@ -80,5 +92,5 @@ if __name__ == "__main__":
     train_feature_file = conv.redirect(args.input+"|train.vectorized.mat")
     test_feature_file = conv.redirect(args.input+"|test.vectorized.mat")
     
-    linear_train(trainfile=train_feature_file,testfile=test_feature_file,vs=args.vs,regularize=args.regularize,C=args.C)
+    linear_train(trainfile=train_feature_file,testfile=test_feature_file,vs=args.vs,reg=args.reg,C=args.C)
     

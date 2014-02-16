@@ -15,12 +15,10 @@ E.g.
 @author: Ning
 """
 
-
-from setenv import root
 import os,sys
 from log import _logger
 
-
+root = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../")
 
 def argmax(ls):
     if not ls:

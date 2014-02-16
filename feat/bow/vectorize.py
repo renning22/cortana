@@ -27,7 +27,7 @@ from collections import defaultdict
 import codecs
 
 
-def vectorize(tfidf=False,binary=False):
+def vectorize(tfidf=True,binary=False):
     
     log._logger.info("Loding...")
     
@@ -41,7 +41,10 @@ def vectorize(tfidf=False,binary=False):
         vectorizer = CountVectorizer
     
     log._logger.info("Fitting and transforming...")
-    vectorizer = vectorizer(token_pattern=u'(?u)\\b\\w+\\b',binary=binary, ngram_range = (1, 3))
+    vectorizer = vectorizer(token_pattern=u'(?u)\\b\\w+\\b',binary=binary, ngram_range = (1, 3), norm = 'l2')
+    
+    log._logger.info( str(vectorizer) )
+
     trainX = vectorizer.fit_transform(trainX)
     testX = vectorizer.transform(testX)
     
@@ -86,4 +89,4 @@ def vectorize(tfidf=False,binary=False):
 #            fl.write("\n")
 
 if __name__ == "__main__":
-    vectorize(True)
+    vectorize(tfidf=True)

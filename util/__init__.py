@@ -3,6 +3,8 @@ import sys, os
 #from feat.terms.term_categorize import term_category
 from util.log import _logger
 
+root = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../")
+
 TEST_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../data/aggregated/test.dat")
 TRAIN_FILE_PATH = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../data/aggregated/train.dat")
 

@@ -1,6 +1,9 @@
 import sys, os
 # what about data aggregate importing this
 #from feat.terms.term_categorize import term_category
+import numpy as np
+#from feat.terms.term_categorize import term_category
+from sklearn.feature_extraction.text import TfidfVectorizer
 from util.log import _logger
 
 root = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) + "/../")
@@ -14,7 +17,7 @@ def argmax(ls):
     return max(ls, key = lambda x: x[1])
 
 def load_data(train_path):
-    _logger.info("Loading training data from %s" % train_path)
+    _logger.info("Loading data from %s" % train_path)
     X = []
     y = []
     with open(train_path) as train_file:
@@ -25,7 +28,7 @@ def load_data(train_path):
             terms, domain = line.split('\t')
             X.append(terms)
             y.append(domain)
-    return X, y
+    return np.array(X), np.array(y)
 
 class Tokenizer(object):
     def __init__(self):
@@ -36,6 +39,21 @@ class Tokenizer(object):
         ret = [term_category(term) for term in terms]
         return list(ret)
 
-__all__ = ["tsv", "conv", "log", "Tokenizer", "load_data", "argmax", "TEST_FILE_PATH", "TRAIN_FILE_PATH"]
+class Analyzer(object):
+    def __init__(self):
+        self.tfidf = TfidfVectorizer(min_df = 1, binary = False, ngram_range = (1, 3),
+                                     tokenizer = Tokenizer())
+        self.tokens = self.tfidf.build_tokenizer()
+        self.ngram = self.tfidf.build_analyzer()
+
+    def __call__(self, sentence):
+        ret = self.ngram(sentence)
+        terms = self.tokens(sentence)
+        for term in terms:
+            cate = term_category(term)
+            if term != cate:
+                ret.append(cate)
+        return ret
+
 
 

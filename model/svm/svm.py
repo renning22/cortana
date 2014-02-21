@@ -25,9 +25,11 @@ def linear_train(trainfile,testfile,vs='1vsR',C=1,reg='l2', dump=False):
     trainX = pickle.load(open(trainfile))
     trainy = [r[1] for r in tsv.reader(conv.redirect("data|train.dat"))]
 
+    assert( trainX.shape[0] == len(trainy) )
+
     # Normalize
     #log._logger.info("Normolizing...")
-    scaler = StandardScaler(copy=True,with_mean=False)
+    #scaler = StandardScaler(copy=True,with_mean=False)
     #log._logger.info( str(scaler) )
     #trainX = scaler.fit_transform(trainX)
 
@@ -54,12 +56,12 @@ def linear_train(trainfile,testfile,vs='1vsR',C=1,reg='l2', dump=False):
         pickle.dump(clf,open("svm.model",'w'))
     
     if testfile is not None:
-        test(clf,scaler,testfile)
+        test(clf,testfile)
 
     return clf
 
 
-def test(model,scaler,testmatfile):
+def test(model,testmatfile):
     ""
     
     clf = model
@@ -67,11 +69,17 @@ def test(model,scaler,testmatfile):
     testX = pickle.load(open(testmatfile))
     testy = [r[1] for r in tsv.reader(conv.redirect("data|test.dat"))]
     
+    print testX.shape
+    print len(testy)
+    assert( testX.shape[0] == len(testy) )
+
     #log._logger.info("Normalizing...")
     #testX = scaler.transform(testX)
 
     log._logger.info("Testing...")
     predicts = clf.predict(testX)
+
+    assert( len(predicts) == len(testy) )
     
     with codecs.open("svm.predicted.dat",'w',encoding='utf-8') as fl:
         for src,p in zip(tsv.reader(conv.redirect("data|test.dat")),predicts):

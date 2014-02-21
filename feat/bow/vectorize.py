@@ -34,7 +34,10 @@ def vectorize(tfidf=True,binary=False,dump=False):
     
     trainX = [r[0] for r in tsv.reader(conv.redirect('train.tokenized.dat'))]
     testX = [r[0] for r in tsv.reader(conv.redirect('test.tokenized.dat'))]
-    
+
+    print len(trainX)
+    print len(testX)
+
     vectorizer = None
     if tfidf:
         vectorizer = TfidfVectorizer
@@ -49,6 +52,9 @@ def vectorize(tfidf=True,binary=False,dump=False):
     trainX = vectorizer.fit_transform(trainX)
     testX = vectorizer.transform(testX)
     
+    print trainX.shape
+    print testX.shape
+
     log._logger.info("Dumping binaries...")
     pickle.dump(vectorizer,open("vectorizer.bin",'w'))
     pickle.dump(trainX,open("train.vectorized.mat",'w'))

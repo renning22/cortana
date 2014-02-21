@@ -9,10 +9,14 @@ from util import *
 from util.log import _logger
 from feat.terms.term_categorize import term_category
 import codecs
+import argparse
 
 def parse(sentence):
     s1 = [term_category(term) for term in sentence.split()]
-    return s1
+    if len(s1) == 0:
+        return ["__empty__"]
+    else:
+        return s1
 
     # for i in xrange(len(s1)):
     #     if i > 0 and s1[i] == s1[i-1]:
@@ -33,4 +37,5 @@ def tokenize():
             fl.write("%s\t%s\n" % (' '.join(list(parse(row[0]))) , row[1]) )
     
 if __name__ == "__main__":
+    
     tokenize()

@@ -30,21 +30,25 @@ def vectorize(modelpath,binary=True):
 
         mat = []
         filepath = conv.redirect(filename)
-        for row in tsv.reader(filepath):
+        for i,row in enumerate(tsv.reader(filepath)):
         
+            if i%1000 == 0:
+                sys.stdout.write("%s\r" % i)
+                sys.stdout.flush()
+
             n = 0
-            
             aggregate_vec = np.zeros( l2norm.shape[1] )
             for term in row[0].split():
-                ths = None
-                if term in index:
-                    ths = l2norm[index[term]]
-                else:
-                    pass
-                    #print 'Not found %s' % (term)
-                if ths is not None:
-                    aggregate_vec += ths
-                    n += 1
+                for cha in term:
+                    ths = None
+                    if cha in index:
+                        ths = l2norm[index[cha]]
+                    else:
+                        pass
+                        #print 'Not found %s' % (term)
+                    if ths is not None:
+                        aggregate_vec += ths
+                        n += 1
             
             if n > 0:
                 aggregate_vec /= n
@@ -62,5 +66,5 @@ def vectorize(modelpath,binary=True):
 
         
 if __name__ == "__main__":
-    vectorize( conv.redirect('data|news.w2v.bin') )
+    vectorize( conv.redirect('data|queries_2014-01-15_2014-02-07_zh-CN.filtered.preprocessed.shufed.w2v.bin') )
         

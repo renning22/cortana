@@ -66,5 +66,5 @@ def vectorize(modelpath,binary=True):
 
         
 if __name__ == "__main__":
-    vectorize( conv.redirect('data|queries_2014-01-15_2014-02-07_zh-CN.filtered.preprocessed.shufed.w2v.bin') )
+    vectorize( conv.redirect('data|queries_2014-01-15_2014-02-07_zh-CN.filtered.wbr.preprocessed.shufed.w2v.bin') )
         

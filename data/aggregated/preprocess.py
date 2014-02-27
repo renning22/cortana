@@ -7,7 +7,7 @@ import math
 
 input = sys.argv[1];
 output = input.split('.')
-output[-1:] = ["preprocessed"] + output[-1:]
+output[1:] = ["dat"]
 output = '.'.join(output)
 print "Output to: " + output
 
